@@ -228,7 +228,7 @@ export class Environment {
      */
     public static createAlphaTabWorker(scriptFile: string | null): Worker {
         // @ts-ignore
-        if (Environment.isWebPackBundled || Environment.isViteBundled) {
+        if (Environment.isWebPackBundled) {
             // WebPack currently requires this exact syntax: new Worker(new URL(..., import.meta.url)))
             // The module `@coderline/alphatab` will be resolved by WebPack to alphaTab consumed as library
             // this will not work with CDNs because worker start scripts need to have the same origin like
@@ -240,6 +240,10 @@ export class Environment {
                 // @ts-ignore
                 /* webpackChunkName: "alphatab.worker" */ new URL('@coderline/alphatab', import.meta.url)
             );
+        }
+        if (Environment.isViteBundled) {
+            // @ts-ignore
+            return new Worker('@coderline/alphatab', import.meta.url)
         }
 
         if (!scriptFile) {
