@@ -197,6 +197,11 @@ export class Environment {
     /**
      * @target web
      */
+    public static isViteBundled: boolean = Environment.detectVite();
+
+    /**
+     * @target web
+     */
     public static scriptFile: string | null = Environment.detectScriptFile();
 
     /**
@@ -222,7 +227,8 @@ export class Environment {
      * @target web
      */
     public static createAlphaTabWorker(scriptFile: string | null): Worker {
-        if (Environment.isWebPackBundled) {
+        // @ts-ignore
+        if (Environment.isWebPackBundled || Environment.isViteBundled) {
             // WebPack currently requires this exact syntax: new Worker(new URL(..., import.meta.url)))
             // The module `@coderline/alphatab` will be resolved by WebPack to alphaTab consumed as library
             // this will not work with CDNs because worker start scripts need to have the same origin like
@@ -567,6 +573,22 @@ export class Environment {
         try {
             // @ts-ignore
             if (typeof __webpack_require__ === 'function') {
+                return true;
+            }
+        } catch (e) {
+            // ignore any errors
+        }
+        return false;
+    }
+
+    /**
+     * @target web
+     */
+    private static detectVite(): boolean {
+        /* Vite https://vitejs.dev/guide/env-and-mode.html */
+        try {
+            // @ts-ignore
+            if (import.meta.env.VITE_BUNDLE === 'true') {
                 return true;
             }
         } catch (e) {
